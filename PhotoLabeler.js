@@ -1,62 +1,50 @@
-const photoDictionary = {
-  "spare sprinklers": "Head Box",
-  "system's riser": "System Riser",
-  "escutcheons": "Missing Escutcheons or Cover Plates",
-  "cover plates": "Missing Escutcheons or Cover Plates",
-  "gauges been checked": "Gauges",
-  "fire department connection": "FDC",
-  "If applicable, are the valves connected to pressure-type alarm switches or water motor-operated alarms either locked, sealed, or electronically supervised in the correct position?": "Valve Supervision"
-};
+const rules = [
+  {
+    keywords: ["spare", "sprinklers", "wrench"],
+    text: "Head Box"
+  },
+  {
+    keywords: ["system", "riser"],
+    text: "System Riser"
+  },
+  {
+    keywords: ["escutcheons", "cover plates"],
+    text: "Missing Escutcheons or Cover Plates"
+  },
+  {
+    keywords: ["gauges", "calibrated", "5 years"],
+    text: "Gauges"
+  },
+  {
+    keywords: ["valves", "sealed", "correct position"],
+    text: "Alarm Valves"
+  }
+];
 
+const links = document.querySelectorAll('a[href*="/answers/"]');
 
-async function getQuestion(url) {
+(async () => {
+  for (const link of links) {
+    try {
+      const res = await fetch(link.href);
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, "text/html");
 
-  const res = await fetch(url, { credentials: "include" });
-  const html = await res.text();
+      const question = doc.querySelector("#frequency")?.innerText.toLowerCase() || "";
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+      for (const rule of rules) {
+        const match = rule.keywords.every(word => question.includes(word));
 
-  const questionEl = doc.querySelector("#frequency");
-
-  return questionEl ? questionEl.textContent.toLowerCase() : null;
-}
-
-
-async function labelPhotos() {
-
-  const links = [...document.querySelectorAll('a[href*="/answers/"]')];
-
-  const jobs = links.map(async (link) => {
-
-    const url = new URL(link.href, window.location.origin);
-    const question = await getQuestion(url);
-
-    if (!question) return;
-
-    let label = "";
-
-    for (const key in photoDictionary) {
-      if (question.includes(key)) {
-        label = photoDictionary[key];
-        break;
+        if (match) {
+          link.textContent = rule.text;
+          break;
+        }
       }
+
+      await new Promise(r => setTimeout(r, 200));
+
+    } catch (err) {
+      console.error(err);
     }
-
-    if (!label) return;
-
-    const tag = document.createElement("span");
-    tag.textContent = "  [" + label + "]";
-    tag.style.color = "red";
-    tag.style.fontWeight = "bold";
-
-    link.after(tag);
-
-  });
-
-  await Promise.all(jobs);
-
-  console.log("Photo labeling finished");
-}
-
-labelPhotos();
+  }
+})();
