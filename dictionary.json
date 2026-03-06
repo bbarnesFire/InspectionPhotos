@@ -34,5 +34,9 @@
        {
     "keywords": ["sprinklers", "foreign", "paint"],
     "text": "Loaded or Painted Heads"
+  },
+         {
+    "keywords": ["sprinklers", "proper", "clearance", "below"],
+    "text": "Improper Clearance Below Head"
   }
 ]
