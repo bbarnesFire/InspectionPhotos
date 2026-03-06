@@ -1,56 +1,96 @@
 (async function () {
 
-const dictUrl = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json";
+console.log("📸 Photo Labeler Started");
 
-const rules = await fetch(dictUrl).then(r=>r.json());
+// LOAD DICTIONARY
+const dictUrl = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json?" + Date.now();
+const dictResponse = await fetch(dictUrl);
+const dictionary = await dictResponse.json();
 
-const links = document.querySelectorAll('a[href*="_answers/"]');
+console.log("📚 Dictionary loaded:", dictionary);
 
-links.forEach(link => {
+// GET ALL LINKS
+const links = document.querySelectorAll("a.qmb-ui-text--link");
 
-let container = link.closest("div") || link.parentElement;
-let text = container.innerText.toLowerCase();
+console.log("🔎 Links found:", links.length);
 
-let label = null;
+// FUNCTION TO ADD LABEL
+function addLabel(link, text){
 
-/* dictionary keyword matching */
-for (let rule of rules) {
+    const container = link.closest('[class*="qmb"]') || link.parentElement;
 
-let match = true;
+    if(!container) return;
 
-for (let k of rule.keywords) {
-if (!text.includes(k.toLowerCase())) {
-match = false;
-break;
-}
-}
+    if(container.querySelector(".photoLabel")) return;
 
-if (match) {
-label = rule.text;
-break;
-}
+    const label = document.createElement("span");
+    label.className = "photoLabel";
 
-}
+    label.style.color = "red";
+    label.style.fontWeight = "bold";
+    label.style.marginLeft = "8px";
 
-/* ITV fallback */
-if (!label && link.innerText.toLowerCase().includes("inspectors test valve")) {
-label = "ITV";
+    label.textContent = "Photo: " + text;
+
+    link.insertAdjacentElement("afterend", label);
 }
 
-if (label) {
+// LOOP LINKS
+for(const link of links){
 
-let tag = document.createElement("span");
+    const href = link.getAttribute("href");
 
-tag.textContent = "  [" + label + "]";
+    if(!href) continue;
 
-tag.style.color = "red";
-tag.style.fontWeight = "bold";
-tag.style.marginLeft = "8px";
+    // ITV DETECTION
+    if(href.includes("inspectors_test_valve_answers")){
+        addLabel(link,"ITV");
+        continue;
+    }
 
-link.after(tag);
+    // NORMAL ANSWERS
+    if(!href.includes("/answers/")) continue;
+
+    try{
+
+        const answerURL = new URL(href, location.origin).href;
+
+        const response = await fetch(answerURL);
+        const html = await response.text();
+
+        const doc = new DOMParser().parseFromString(html,"text/html");
+
+        const questionSpan = doc.querySelector("#frequency");
+
+        if(!questionSpan) continue;
+
+        const questionText = questionSpan.innerText.toLowerCase();
+
+        for(const rule of dictionary){
+
+            const match = rule.keywords.every(k =>
+                questionText.includes(k.toLowerCase())
+            );
+
+            if(match){
+
+                addLabel(link,rule.text);
+
+                console.log("✅ Match:",rule.text);
+
+                break;
+            }
+
+        }
+
+    }catch(e){
+
+        console.log("⚠️ Error reading answer",e);
+
+    }
 
 }
 
-});
+console.log("✅ Photo Labeler Finished");
 
 })();
