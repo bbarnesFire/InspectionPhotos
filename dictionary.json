@@ -1,0 +1,26 @@
+[
+  {
+    "keywords": ["spare", "sprinklers", "wrench"],
+    "text": "Head Box"
+  },
+  {
+    "keywords": ["system", "riser"],
+    "text": "System Riser"
+  },
+  {
+    "keywords": ["escutcheons", "cover plates"],
+    "text": "Missing Escutcheons or Cover Plates"
+  },
+  {
+    "keywords": ["gauges", "calibrated", "5 years"],
+    "text": "Gauges"
+  },
+  {
+    "keywords": ["valves", "sealed", "correct position"],
+    "text": "Alarm Valves"
+  },
+  {
+    "keywords": ["fire department", "hydrostatic"],
+    "text": "FDC"
+  }
+]
