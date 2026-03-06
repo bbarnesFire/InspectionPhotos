@@ -22,5 +22,9 @@
   {
     "keywords": ["fire department", "hydrostatic"],
     "text": "FDC"
+  },
+    {
+    "keywords": ["FDC", "free of", "obstructions"],
+    "text": "FDC"
   }
 ]
