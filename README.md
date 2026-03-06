@@ -85,7 +85,7 @@ Label Inspection Photos
 
 3. Paste the script as a single function into the **URL field**.
    ```
-   javascript:(async()=>{let r=await fetch('https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/PhotoLabeler.js?'+Date.now());let t=await r.text();eval(t)})();
+   javascript:(async()=>{let r=await fetch('https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/PhotoLabeler.js?%27+Date.now());let t=await r.text();eval(t)})();
    ```
 
 5. Save the bookmark.
