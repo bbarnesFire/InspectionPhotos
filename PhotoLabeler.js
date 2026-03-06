@@ -1,81 +1,56 @@
-(async () => {
+(async function () {
 
-const dictURL = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json";
+const dictUrl = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json";
 
-const statusBox = document.createElement("div");
-statusBox.style.position="fixed";
-statusBox.style.bottom="20px";
-statusBox.style.right="20px";
-statusBox.style.background="#111";
-statusBox.style.color="#fff";
-statusBox.style.padding="12px 16px";
-statusBox.style.borderRadius="8px";
-statusBox.style.fontSize="14px";
-statusBox.style.zIndex="999999";
-statusBox.style.boxShadow="0 4px 12px rgba(0,0,0,.4)";
-statusBox.innerText="Photo Labeler\nLoading dictionary...";
-document.body.appendChild(statusBox);
+const rules = await fetch(dictUrl).then(r=>r.json());
 
-const response = await fetch(dictURL);
-const rules = await response.json();
+const links = document.querySelectorAll('a[href*="_answers/"]');
 
-const links = [...document.querySelectorAll('a[href*="/answers/"]')];
+links.forEach(link => {
 
-let processed = 0;
-const total = links.length;
+let container = link.closest("div") || link.parentElement;
+let text = container.innerText.toLowerCase();
 
-statusBox.innerText=`Photo Labeler\nProcessing 0 / ${total}`;
+let label = null;
 
-async function processLink(link){
+/* dictionary keyword matching */
+for (let rule of rules) {
 
-  if(link.querySelector(".photo-label")) return;
+let match = true;
 
-  try{
+for (let k of rule.keywords) {
+if (!text.includes(k.toLowerCase())) {
+match = false;
+break;
+}
+}
 
-    const res = await fetch(link.href);
-    const html = await res.text();
-
-    const doc = new DOMParser().parseFromString(html,"text/html");
-
-    const question = doc.querySelector("#frequency")?.innerText.toLowerCase() || "";
-
-    for(const rule of rules){
-
-      const match = rule.keywords.every(k =>
-        question.includes(k.toLowerCase())
-      );
-
-      if(match){
-
-        const label = document.createElement("span");
-
-        label.textContent = " [" + rule.text + "]";
-        label.style.color = "red";
-        label.style.fontWeight = "bold";
-        label.style.marginLeft = "6px";
-        label.className = "photo-label";
-
-        link.appendChild(label);
-
-        break;
-
-      }
-
-    }
-
-  }catch(e){
-    console.error(e);
-  }
-
-  processed++;
-  statusBox.innerText=`Photo Labeler\nProcessing ${processed} / ${total}`;
+if (match) {
+label = rule.text;
+break;
+}
 
 }
 
-await Promise.all(links.map(processLink));
+/* ITV fallback */
+if (!label && link.innerText.toLowerCase().includes("inspectors test valve")) {
+label = "ITV";
+}
 
-statusBox.innerText=`Photo Labeler\n✅ Complete (${total} photos)`;
+if (label) {
 
-setTimeout(()=>statusBox.remove(),4000);
+let tag = document.createElement("span");
+
+tag.textContent = "  [" + label + "]";
+
+tag.style.color = "red";
+tag.style.fontWeight = "bold";
+tag.style.marginLeft = "8px";
+
+link.after(tag);
+
+}
+
+});
 
 })();
