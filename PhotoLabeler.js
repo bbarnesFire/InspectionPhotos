@@ -13,7 +13,7 @@ statusBox.style.borderRadius="8px";
 statusBox.style.fontSize="14px";
 statusBox.style.zIndex="999999";
 statusBox.style.boxShadow="0 4px 12px rgba(0,0,0,.4)";
-statusBox.innerText="Inspection Photo Helper\nLoading dictionary...";
+statusBox.innerText="Photo Labeler\nLoading dictionary...";
 document.body.appendChild(statusBox);
 
 const response = await fetch(dictURL);
@@ -24,9 +24,11 @@ const links = [...document.querySelectorAll('a[href*="/answers/"]')];
 let processed = 0;
 const total = links.length;
 
-statusBox.innerText=`Inspection Photo Helper\nProcessing 0 / ${total}`;
+statusBox.innerText=`Photo Labeler\nProcessing 0 / ${total}`;
 
 async function processLink(link){
+
+  if(link.querySelector(".photo-label")) return;
 
   try{
 
@@ -44,8 +46,19 @@ async function processLink(link){
       );
 
       if(match){
-        link.textContent = rule.text;
+
+        const label = document.createElement("span");
+
+        label.textContent = " [" + rule.text + "]";
+        label.style.color = "red";
+        label.style.fontWeight = "bold";
+        label.style.marginLeft = "6px";
+        label.className = "photo-label";
+
+        link.appendChild(label);
+
         break;
+
       }
 
     }
@@ -55,12 +68,13 @@ async function processLink(link){
   }
 
   processed++;
-  statusBox.innerText=`Inspection Photo Helper\nProcessing ${processed} / ${total}`;
+  statusBox.innerText=`Photo Labeler\nProcessing ${processed} / ${total}`;
+
 }
 
 await Promise.all(links.map(processLink));
 
-statusBox.innerText=`Inspection Photo Helper\n✅ Complete (${total} photos)`;
+statusBox.innerText=`Photo Labeler\n✅ Complete (${total} photos)`;
 
 setTimeout(()=>statusBox.remove(),4000);
 
