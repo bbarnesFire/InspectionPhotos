@@ -2,40 +2,50 @@
 
 console.log("📸 Photo Labeler Started");
 
-// ---------- FLOATING STATUS BOX ----------
+// ---------- MODERN STATUS WIDGET ----------
 
 const statusBox = document.createElement("div");
 
 statusBox.style.position = "fixed";
-statusBox.style.top = "20px";
+statusBox.style.bottom = "20px";
 statusBox.style.right = "20px";
-statusBox.style.background = "#111";
-statusBox.style.color = "#00ff88";
-statusBox.style.padding = "12px 16px";
-statusBox.style.borderRadius = "8px";
-statusBox.style.fontFamily = "monospace";
+statusBox.style.background = "#1e1e1e";
+statusBox.style.color = "#ffffff";
+statusBox.style.padding = "14px 18px";
+statusBox.style.borderRadius = "10px";
+statusBox.style.fontFamily = "system-ui,-apple-system,Segoe UI,Roboto";
 statusBox.style.fontSize = "13px";
 statusBox.style.zIndex = "999999";
-statusBox.style.boxShadow = "0 0 12px rgba(0,0,0,0.4)";
+statusBox.style.boxShadow = "0 6px 18px rgba(0,0,0,0.35)";
+statusBox.style.minWidth = "220px";
+statusBox.style.lineHeight = "1.6";
+statusBox.style.transition = "opacity 0.6s";
 
-statusBox.innerText = "Photo Labeler Starting...";
+statusBox.innerHTML = `
+<div style="font-weight:600;margin-bottom:6px">📸 Photo Labeler</div>
+<div id="pl-status">Starting...</div>
+`;
+
 document.body.appendChild(statusBox);
 
+const statusText = statusBox.querySelector("#pl-status");
+
 function updateStatus(text){
-    statusBox.innerText = text;
+    statusText.textContent = text;
 }
 
 // ---------- LOAD DICTIONARY ----------
 
-updateStatus("Loading dictionary...");
+updateStatus("📚 Loading dictionary...");
 
 const dictURL = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json?" + Date.now();
+
 const dictResponse = await fetch(dictURL);
 const dictionary = await dictResponse.json();
 
 console.log("Dictionary loaded:", dictionary);
 
-// ---------- GET ALL LINKS ----------
+// ---------- GET LINKS ----------
 
 const links = document.querySelectorAll("a.qmb-ui-text--link");
 
@@ -71,7 +81,7 @@ for(const link of links){
 
     processed++;
 
-    updateStatus(`Scanning photo ${processed} of ${links.length}`);
+    updateStatus(`🔎 Scanning ${processed} / ${links.length}`);
 
     const href = link.getAttribute("href");
 
@@ -80,10 +90,10 @@ for(const link of links){
     // ITV detection
     if(href.includes("inspectors_test_valve_answers")){
         addLabel(link,"ITV");
+        updateStatus("🧪 ITV detected");
         continue;
     }
 
-    // Only process answer links
     if(!href.includes("/answers/")) continue;
 
     try{
@@ -91,6 +101,7 @@ for(const link of links){
         const answerURL = new URL(href, location.origin).href;
 
         const response = await fetch(answerURL);
+
         const html = await response.text();
 
         const doc = new DOMParser().parseFromString(html,"text/html");
@@ -111,25 +122,29 @@ for(const link of links){
 
                 addLabel(link, rule.text);
 
+                updateStatus(`🏷️ ${rule.text}`);
+
                 console.log("Match:", rule.text);
 
                 break;
+
             }
         }
 
-    } catch(err) {
+    } catch(err){
 
         console.log("Error processing answer:", err);
 
     }
+
 }
 
-// ---------- DONE ----------
+// ---------- FINISHED ----------
 
-updateStatus("Finished ✔");
+updateStatus("✅ Finished labeling photos");
 
 setTimeout(()=>{
-    statusBox.innerText = "Photo Labeler Complete ✔";
-},500);
+    statusBox.style.opacity = "0";
+},4000);
 
 })();
