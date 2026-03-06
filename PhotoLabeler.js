@@ -1,4 +1,4 @@
-javascript:(async()=>{
+(async () => {
 
 const dictURL = "https://raw.githubusercontent.com/bbarnesFire/InspectionPhotos/main/dictionary.json";
 
@@ -56,14 +56,12 @@ async function processLink(link){
 
   processed++;
   statusBox.innerText=`Inspection Photo Helper\nProcessing ${processed} / ${total}`;
-
 }
 
 await Promise.all(links.map(processLink));
 
 statusBox.innerText=`Inspection Photo Helper\n✅ Complete (${total} photos)`;
 
-// auto disappear after 4 seconds
 setTimeout(()=>statusBox.remove(),4000);
 
 })();
