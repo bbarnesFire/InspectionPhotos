@@ -38,5 +38,10 @@
          {
     "keywords": ["sprinklers", "proper", "clearance", "below"],
     "text": "Improper Clearance Below Head"
+  },
+        {
+    "keywords": ["electronic", "supervisory", "indicate", "movement"],
+    "text": "Electronic Supervisory"
   }
+
 ]
