@@ -31,15 +31,15 @@
     "keywords": ["FDC", "caps", "undamaged"],
     "text": "FDC Caps"
   },
-       {
+      {
     "keywords": ["sprinklers", "foreign", "paint"],
     "text": "Loaded or Painted Heads"
   },
-         {
+      {
     "keywords": ["sprinklers", "proper", "clearance", "below"],
     "text": "Improper Clearance Below Head"
   },
-        {
+      {
     "keywords": ["electronic", "supervisory", "indicate", "movement"],
     "text": "Electronic Supervisory"
   }
